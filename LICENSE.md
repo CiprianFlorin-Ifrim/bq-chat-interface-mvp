@@ -1,4 +1,4 @@
-Copyright (c) 2026 Ciprian-Florin Ifrim
+Copyright (c) 2026 - Present Ciprian-Florin Ifrim
 
 All rights reserved.
 

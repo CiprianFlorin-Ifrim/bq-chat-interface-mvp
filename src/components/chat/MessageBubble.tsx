@@ -1,18 +1,16 @@
 // components/chat/MessageBubble.tsx
 // Single chat message. Memoized so only the actively-streaming message
-// re-renders during token delivery; all settled messages stay frozen.
+// re-renders during token delivery.
 //
-// Rendering matrix:
-//   user + any content        -> surface-coloured pill, plain text
-//   assistant + empty + streaming -> ThinkingIndicator (dots)
-//   assistant + content + streaming -> rendered markdown + blinking caret
-//   assistant + content + done     -> rendered markdown, no caret
+// Uses Streamdown for assistant output -- handles incomplete markdown
+// gracefully during streaming with no layout shifts.
 
-import { memo }                  from 'react'
-import type { Message }          from '@/types/chat'
-import { renderMarkdown }        from '@/lib/markdown'
-import { cn }                    from '@/lib/utils'
-import ThinkingIndicator         from './ThinkingIndicator'
+import { memo }           from 'react'
+import { Streamdown }     from 'streamdown'
+import 'streamdown/styles.css'
+import type { Message }   from '@/types/chat'
+import { cn }             from '@/lib/utils'
+import ThinkingIndicator  from './ThinkingIndicator'
 
 interface Props { message: Message }
 
@@ -29,23 +27,17 @@ const MessageBubble = memo(function MessageBubble({ message }: Props) {
         )}
       >
         {isUser ? (
-          // User: plain pre-wrap text inside the pill
           <span>{content}</span>
 
         ) : content === '' && isStreaming ? (
-          // Assistant: waiting for first token
           <ThinkingIndicator />
 
         ) : (
-          // Assistant: streamed / complete markdown
-          <>
-            <span
-              className="message__markdown"
-              // renderMarkdown output is sanitised (no user HTML injected)
-              dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }}
-            />
-            {isStreaming && <span className="message__cursor" aria-hidden />}
-          </>
+          // Streamdown handles incomplete markdown during streaming,
+          // and isAnimating drives its built-in streaming caret.
+          <Streamdown isAnimating={!!isStreaming}>
+            {content}
+          </Streamdown>
         )}
       </div>
     </div>

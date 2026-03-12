@@ -7,41 +7,33 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@source "../node_modules/streamdown/dist/*.js";
 
 /* -------------------------------------------------------------------------
-   ShadCN Required HSL Tokens (dark theme)
+   ShadCN Required HSL Tokens (white theme)
 ------------------------------------------------------------------------- */
 @layer base {
   :root {
-    --background:         0 0% 13%;      /* #212121 - matches --bg-primary   */
-    --foreground:         0 0% 100%;
-
-    --card:               0 0% 19%;
-    --card-foreground:    0 0% 100%;
-
-    --popover:            0 0% 16%;
-    --popover-foreground: 0 0% 100%;
-
-    --primary:            0 0% 100%;
-    --primary-foreground: 0 0% 9%;
-
-    --secondary:          0 0% 19%;
-    --secondary-foreground: 0 0% 100%;
-
-    --muted:              0 0% 19%;
-    --muted-foreground:   0 0% 63%;
-
-    --accent:             0 0% 19%;
-    --accent-foreground:  0 0% 100%;
-
-    --destructive:        0 63% 31%;
+    --background:             210 15% 96%;
+    --foreground:             0 0% 9%;
+    --card:                   0 0% 98%;
+    --card-foreground:        0 0% 9%;
+    --popover:                0 0% 100%;
+    --popover-foreground:     0 0% 9%;
+    --primary:                0 0% 9%;
+    --primary-foreground:     0 0% 100%;
+    --secondary:              0 0% 96%;
+    --secondary-foreground:   0 0% 9%;
+    --muted:                  0 0% 96%;
+    --muted-foreground:       0 0% 45%;
+    --accent:                 0 0% 96%;
+    --accent-foreground:      0 0% 9%;
+    --destructive:            0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-
-    --border:             0 0% 27%;      /* #444                             */
-    --input:              0 0% 19%;
-    --ring:               0 0% 83%;
-
-    --radius:             0.75rem;
+    --border:                 0 0% 83%;
+    --input:                  0 0% 83%;
+    --ring:                   0 0% 9%;
+    --radius:                 0.75rem;
   }
 }
 
@@ -50,16 +42,17 @@
    Kept as plain CSS vars alongside the ShadCN HSL set.
 ------------------------------------------------------------------------- */
 :root {
-  --bg-primary:       #212121;
-  --bg-surface:       #303030;
-  --bg-deep:          #1a1a1a;
-  --bg-hover:         #404040;
+  --bg-primary:       hsl(210, 70%, 96%);
+  --bg-surface:       hsl(210, 15%, 91%);
+  --bg-deep:          hsl(210, 15%, 86%);
+  --bg-hover:         hsl(210, 15%, 81%);
+  --bg-logo:          hsl(0, 0%, 15%); 
 
-  --text-primary:     #ffffff;
-  --text-secondary:   #cccccc;
-  --text-muted:       #888888;
+  --text-primary:     #18181b;
+  --text-secondary:   #52525b;
+  --text-muted:       #a1a1aa;
 
-  --border-color:     #444444;
+  --border-color:     #d4d4d8;
   --border-radius-lg: 16px;
   --border-radius-md: 12px;
 
@@ -91,7 +84,10 @@ html, body, #root {
   line-height:              1.6;
   -webkit-font-smoothing:   antialiased;
   -moz-osx-font-smoothing:  grayscale;
+  text-rendering:           optimizeLegibility;
+  font-feature-settings:    'kern' 1, 'liga' 1;
   overflow:                 hidden;
+  color-scheme:             light;
 }
 
 /* -------------------------------------------------------------------------
@@ -134,39 +130,38 @@ body.ccursor-active *::after {
   top:           50%;
   left:          50%;
   transform:     translate(-50%, -50%);
-  width:         14px;
-  height:        14px;
+  width:         13px;
+  height:        13px;
   border-radius: 50%;
-  border:        2px solid #ffffff;
+  border:        1.5px solid var(--bg-logo);
   background:    transparent;
-  box-shadow:    0 0 0 2px #000000;
+  box-shadow:    0 0 0 1.5px #ffffff,
+                 inset 0 0 0 1.5px #ffffff;
   transition:    transform 0.15s var(--anim-ease),
-                 border-color 0.15s ease,
-                 width 0.15s var(--anim-ease),
-                 height 0.15s var(--anim-ease);
+                 border-color 0.15s ease;
 }
 
 /* Interactive state: donut breathes */
 #custom-cursor.interactive .cursor-donut {
-  animation: donut-breathe 1.8s ease-in-out infinite alternate;
+  animation: donut-breathe 2.0s ease-in-out infinite alternate;
 }
 
 @keyframes donut-breathe {
   0%   {
     transform:    translate(-50%, -50%) scale(1);
-    border-color: rgba(200, 200, 200, 0.7);
+    border-color: rgba(80, 80, 80, 0.7);
   }
   100% {
-    transform:    translate(-50%, -50%) scale(1.4);
-    border-color: rgba(255, 255, 255, 1);
+    transform:    translate(-50%, -50%) scale(1.20);
+    border-color: rgba(24, 24, 27, 1);
   }
 }
 
 /* Click flash */
 #custom-cursor.clicking .cursor-donut {
-  transform:    translate(-50%, -50%) scale(0.75);
-  border-color: rgba(255, 255, 255, 0.5);
-  transition:   transform 0.1s var(--anim-ease);
+  transform:    translate(-50%, -50%) scale(0.7);
+  border-color: #18181b;
+  transition:   transform 0.08s var(--anim-ease);
 }
 
 /* -------------------------------------------------------------------------
@@ -181,21 +176,27 @@ body.ccursor-active *::after {
   align-items:     center;
   justify-content: center;
   padding:         0 1rem;
-  z-index:         600;     /* sits above the welcome-overlay (500) */
+  padding-top:     50vh;      /* idle state -- nudges content into lower half when not 0 */
+  z-index:         600;
 }
 
 /* App header -- top-left label, fades away once chat is active */
 .app-header {
-  position:   fixed;
-  top:        20px;
-  left:       28px;
-  font-size:  17px;
-  font-weight: 400;
-  z-index:    200;
-  opacity:    1;
-  transition: opacity 0.4s ease;
+  position:       fixed;
+  top:            20px;
+  left:           28px;
+  z-index:        200;
+  opacity:        1;
+  transition:     opacity 0.4s ease;
   pointer-events: none;
-  user-select: none;
+  user-select:    none;
+}
+
+.app-header__logo {
+  height:           40px;     /* adjust to taste */
+  width:            auto;
+  display:          block;
+  object-fit:       contain;
 }
 .app-header--faded {
   opacity: 0;
@@ -204,7 +205,7 @@ body.ccursor-active *::after {
 /* Active layout: flex column from top, chat window expands */
 .layout--active {
   justify-content: flex-start;
-  padding-top:     10px;
+  padding-top:     10px;       /* resets the idle nudge once chat starts     */
 }
 
 /* -------------------------------------------------------------------------
@@ -219,7 +220,7 @@ body.ccursor-active *::after {
   display:         flex;
   align-items:     center;
   justify-content: center;
-  padding-bottom:  20vh;         /* pushes text into upper third, clear of input */
+  padding-bottom:  40vh;         /* pushes text into upper third, clear of input */
   z-index:         700;
   pointer-events:  none;
   transition:      opacity 0.5s ease-out;
@@ -242,6 +243,35 @@ body.ccursor-active *::after {
   transform: translateY(0);
 }
 
+
+/* -------------------------------------------------------------------------
+   Neuron Sphere
+   Canvas sits above the input in idle state, fades out when chat starts.
+------------------------------------------------------------------------- */
+.neuron-sphere {
+  position:       fixed;
+  top:            45%;
+  left:           50%;
+  transform:      translate(-50%, -50%) scale(1);
+  pointer-events: none;
+  z-index:        100;
+  opacity:        1;
+  transition:     opacity 0.9s ease-out,
+                  transform 0.85s cubic-bezier(0.4, 0, 0.2, 1),
+                  top 0.85s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.neuron-sphere--hidden {
+  opacity:        0;
+  pointer-events: none;
+}
+
+.neuron-sphere--expanding {
+  top:       50%;
+  transform: translate(-50%, -50%) scale(1.4);
+}
+
+
 /* -------------------------------------------------------------------------
    Chat Window
 ------------------------------------------------------------------------- */
@@ -252,9 +282,22 @@ body.ccursor-active *::after {
   max-width:  var(--chat-max-w);
   overflow-y: auto;
   padding:    24px 20px 12px;
+  transition: opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.chat-window--faded {
+  opacity: 0.08;
 }
 .chat-window__sentinel {
   height: 1px;
+}
+
+/* Scroll anchor -- prevents the browser from adjusting scroll position
+   when content above the viewport changes height during streaming.    */
+.chat-window {
+  overflow-anchor: none;
+}
+.chat-window__sentinel {
+  overflow-anchor: auto;
 }
 
 /* -------------------------------------------------------------------------
@@ -276,7 +319,8 @@ body.ccursor-active *::after {
   line-height: 1.65;
 }
 .message__content--user {
-  background:    var(--bg-surface);
+  background:    var(--bg-logo);
+  color:         var(--bg-primary);
   padding:       10px 16px;
   border-radius: 18px 18px 4px 18px;
   white-space:   pre-wrap;
@@ -321,8 +365,14 @@ body.ccursor-active *::after {
    Input Bar
 ------------------------------------------------------------------------- */
 .input-wrapper {
-  width:     100%;
-  max-width: var(--input-max-w);
+  width:      100%;
+  max-width:  var(--input-max-w);
+  opacity:    1;
+  transition: opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.input-wrapper--fading {
+  opacity:        0;
+  pointer-events: none;
 }
 .input-wrapper--active {
   max-width:    var(--chat-max-w);
@@ -332,12 +382,14 @@ body.ccursor-active *::after {
 }
 
 .input-bar {
-  background:    var(--bg-surface);
-  border-radius: var(--border-radius-lg);
-  padding:       12px 14px 10px;
+  background:    var(--bg-primary);
+  border-radius: 9999px;
+  padding:       10px 20px;
   display:       flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items:   center;
   gap:           8px;
+  border:        1.5px solid var(--bg-logo);
 }
 
 /* ShadCN Textarea override -- strip its default styles, match app theme */
@@ -345,7 +397,7 @@ body.ccursor-active *::after {
   background:   transparent  !important;
   border:       none         !important;
   box-shadow:   none         !important;
-  color:        var(--text-primary) !important;
+  color:        var(--bg-logo)      !important;
   font-family:  var(--font-sans)    !important;
   font-size:    15px         !important;
   line-height:  1.55         !important;
@@ -354,52 +406,36 @@ body.ccursor-active *::after {
   resize:       none         !important;
   padding:      0            !important;
   overflow-y:   auto         !important;
+  flex:         1 1 auto     !important;
 }
-.input-bar__textarea::placeholder { color: var(--text-muted) !important; }
+.input-bar__textarea::placeholder { color: #9c9590 !important; }
 .input-bar__textarea:focus        { outline: none !important; ring: none !important; }
 
 /* Bottom row: model selector + send */
 .input-bar__controls {
   display:     flex;
   align-items: center;
-  justify-content: flex-end;
-  gap:         8px;
-}
-
-/* Native <select> styled to match the surface */
-.input-bar__model-select {
-  background:   transparent  !important;
-  border:       none         !important;
-  box-shadow:   none         !important;
-  color:        var(--text-muted) !important;
-  font-family:  var(--font-sans)  !important;
-  font-size:    12px         !important;
-  height:       28px         !important;
-  width:        140px        !important;
-  max-width:    140px        !important;
-  padding:      0 6px        !important;
-}
-.input-bar__model-select:hover {
-  color:            var(--text-primary) !important;
-  background-color: var(--bg-hover)     !important;
+  flex-shrink: 0;
+  gap:         4px;
 }
 
 /* ShadCN Button override for the send icon */
 .input-bar__send {
-  width:  30px  !important;
-  height: 30px  !important;
-  padding: 6px  !important;
-  color:  var(--text-muted) !important;
-  border-radius: 6px !important;
-  transition: color var(--anim-fast) ease,
-              background var(--anim-fast) ease !important;
+  width:         30px  !important;
+  height:        30px  !important;
+  padding:       6px   !important;
+  color:         var(--bg-logo) !important;
+  border-radius: 9999px !important;
+  transition:    color var(--anim-fast) ease,
+                 background var(--anim-fast) ease !important;
+  flex-shrink:   0 !important;
 }
 .input-bar__send:hover:not(:disabled) {
   color:            var(--text-primary) !important;
   background-color: var(--bg-hover)     !important;
 }
 .input-bar__send:active:not(:disabled) {
-  color: #4caf50 !important;
+  color: #16a34a !important;
 }
 .input-bar__send:disabled {
   opacity: 0.35 !important;
@@ -411,32 +447,154 @@ body.ccursor-active *::after {
 
 
 /* -------------------------------------------------------------------------
-   Markdown Rendered Output
-   Scoped under .message__markdown to avoid polluting global scope.
+   Antialiasing -- applied to rendered surfaces and text containers
 ------------------------------------------------------------------------- */
-.message__markdown p.md-p    { margin: 0.3rem 0; }
-.message__markdown h2.md-h2  { font-size: 1.25rem; font-weight: 600; margin: 0.75rem 0 0.35rem; }
-.message__markdown h3.md-h3  { font-size: 1.1rem;  font-weight: 600; margin: 0.65rem 0 0.3rem;  }
-.message__markdown h4.md-h4  { font-size: 1rem;    font-weight: 600; margin: 0.5rem 0 0.25rem;  }
-.message__markdown ul.md-ul,
-.message__markdown ol.md-ol  { padding-left: 1.4rem; margin: 0.4rem 0; }
-.message__markdown li        { margin: 0.2rem 0; }
-.message__markdown code.md-code {
-  font-family:      'Courier New', monospace;
-  font-size:        0.875em;
-  padding:          2px 5px;
-  border-radius:    4px;
-  background-color: var(--bg-deep);
-  color:            #ffc107;
+.input-bar,
+.message__content--user,
+.message__content--assistant,
+.message__markdown,
+.app-header,
+.welcome-text {
+  -webkit-font-smoothing:  antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering:          optimizeLegibility;
+  transform:               translateZ(0);   /* promotes to GPU layer, smooths edges */
+  backface-visibility:     hidden;
 }
-.message__markdown hr.md-hr  {
+
+
+/* -------------------------------------------------------------------------
+   Streamdown overrides
+   Scoped to assistant messages. 
+   Adapts streamdown typography tokens to the app's light monochrome palette.
+------------------------------------------------------------------------- */
+
+/* Streamdown flash fix -- force all descendants to inherit background
+   so no element can flash its own default colour during streaming.
+   The container itself is transparent; code blocks are re-applied.    */
+.message__content--assistant {
+  background-color: transparent;
+}
+.message__content--assistant *:not(code):not(pre):not(code *):not(pre *) {
+  background-color: transparent  !important;
+  border-top-color:    transparent !important;
+  border-bottom-color: transparent !important;
+  box-shadow:          none        !important;
+}
+.message__content--assistant code {
+  background-color: var(--bg-deep) !important;
+}
+.message__content--assistant pre {
+  background-color: var(--bg-deep) !important;
+}
+
+.message__content--assistant {
+  --sd-prose-body:      #18181b;
+  --sd-prose-headings:  #18181b;
+  --sd-prose-code:      #92400e;
+  --sd-prose-code-bg:   var(--bg-deep);
+  --sd-prose-hr:        var(--border-color);
+  --sd-prose-bullets:   #52525b;
+  font-size:            15px;
+  line-height:          1.65;
+  min-height:           0;
+}
+
+/* Once a block has been painted, its height can only grow -- never shrink.
+   This stops streamdown from collapsing a block when it re-parses a partial
+   markdown token, which causes the jittery scroll at the bottom of the page. */
+.message__content--assistant > *,
+.message__content--assistant p,
+.message__content--assistant li,
+.message__content--assistant ul,
+.message__content--assistant ol,
+.message__content--assistant h1,
+.message__content--assistant h2,
+.message__content--assistant h3 {
+  min-height:  var(--_h, 0px);
+  transition:  min-height 0s;
+}
+
+.message__content--assistant p {
+  margin:      0 0 0.5rem;
+  font-size:   0.9375rem;
+  color:       #18181b;
+}
+.message__content--assistant p:last-child { margin-bottom: 0; }
+
+.message__content--assistant ul {
+  list-style-type: disc;
+  padding-left:    1.5rem;
+  margin:          0 0 0.5rem;
+}
+.message__content--assistant ol {
+  list-style-type: decimal;
+  padding-left:    1.5rem;
+  margin:          0 0 0.5rem;
+}
+.message__content--assistant li {
+  display:       list-item;
+  margin-bottom: 0.25rem;
+  color:         #3f3f46;
+  font-size:     0.9rem;
+  line-height:   1.65;
+}
+.message__content--assistant li * { font-size: 0.9rem; line-height: 1.65; }
+
+/* Circular bullet marker -- overrides any streamdown default */
+.message__content--assistant ul li::marker {
+  color:     #71717a;
+  font-size: 0.7em;
+}
+
+.message__content--assistant strong {
+  color:       #18181b;
+  font-weight: 600;
+}
+.message__content--assistant em {
+  color:       #3f3f46;
+  font-style:  italic;
+}
+
+.message__content--assistant code {
+  background:   var(--bg-deep);
+  color:        #92400e;
+  padding:      0.1rem 0.35rem;
+  font-family:  'Courier New', monospace;
+  font-size:    0.875rem;
+  border-radius: 3px;
+}
+.message__content--assistant pre {
+  background:   var(--bg-deep);
+  padding:      0.75rem 1rem;
+  margin:       0.5rem 0;
+  overflow-x:   auto;
+  border-radius: 6px;
+}
+.message__content--assistant pre code {
+  background: none;
+  padding:    0;
+  color:      #18181b;
+}
+
+.message__content--assistant h1,
+.message__content--assistant h2,
+.message__content--assistant h3 {
+  color:       #18181b;
+  font-weight: 600;
+  margin:      0.75rem 0 0.3rem;
+  line-height: 1.3;
+}
+.message__content--assistant h1 { font-size: 1.2rem;  }
+.message__content--assistant h2 { font-size: 1.1rem;  }
+.message__content--assistant h3 { font-size: 1.0rem;  }
+
+.message__content--assistant hr {
   border:     none;
   border-top: 1px solid var(--border-color);
   margin:     0.85rem 0;
 }
-.message__markdown strong    { font-weight: 600; }
-.message__markdown em        { font-style: italic; }
-.message__markdown br        { display: block; margin: 0.15rem 0; content: ''; }
+
 
 /* -------------------------------------------------------------------------
    Keyframes

@@ -7,22 +7,24 @@
 
 import { useEffect, useRef }  from 'react'
 import type { Message }        from '@/types/chat'
+import { cn }                  from '@/lib/utils'
 import MessageBubble           from './MessageBubble'
 
-interface Props { messages: Message[] }
+interface Props { messages: Message[]; faded?: boolean }
 
-export default function ChatWindow({ messages }: Props) {
+export default function ChatWindow({ messages, faded }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const lastContent  = messages[messages.length - 1]?.content
 
   // Scroll to bottom on new message or new token
   useEffect(() => {
     const el = containerRef.current
-    if (el) el.scrollTop = el.scrollHeight
+    if (!el) return
+    el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
   }, [messages.length, lastContent])
 
   return (
-    <div className="chat-window" ref={containerRef}>
+    <div className={cn('chat-window', faded && 'chat-window--faded')} ref={containerRef}>
       {messages.map(msg => (
         <MessageBubble key={msg.id} message={msg} />
       ))}

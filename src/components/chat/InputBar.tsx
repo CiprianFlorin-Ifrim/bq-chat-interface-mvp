@@ -13,24 +13,14 @@
 import { useRef, type KeyboardEvent }                    from 'react'
 import { Button }                                         from '@/components/ui/button'
 import { Textarea }                                       from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useAutoResize }                                  from '@/hooks/useAutoResize'
 
 interface Props {
-  isThinking:      boolean
-  selectedModel:   string
-  availableModels: string[]
-  onSend:          (text: string) => void
-  onModelChange:   (model: string) => void
+  isThinking: boolean
+  onSend:     (text: string) => void
 }
 
-export default function InputBar({
-  isThinking,
-  selectedModel,
-  availableModels,
-  onSend,
-  onModelChange,
-}: Props) {
+export default function InputBar({ isThinking, onSend }: Props) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const { resize, reset } = useAutoResize(textareaRef)
 
@@ -63,23 +53,6 @@ export default function InputBar({
       />
 
       <div className="input-bar__controls">
-        {/* Model picker -- native select for minimal bundle cost */}
-        <Select
-          value={selectedModel}
-          onValueChange={onModelChange}
-          disabled={isThinking}
-        >
-          <SelectTrigger className="input-bar__model-select" aria-label="Select model">
-            <SelectValue placeholder="Loading models..." />
-          </SelectTrigger>
-          <SelectContent side="bottom" align="end">
-            {availableModels.map(m => (
-              <SelectItem key={m} value={m}>{m}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* Send button */}
         <Button
           className="input-bar__send"
           variant="ghost"

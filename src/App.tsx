@@ -1,61 +1,77 @@
 // App.tsx
-// Root component. Owns the single piece of layout state: chatActive.
+// Root component. Derives all layout state from useChat phase.
 //
-// When chatActive is false (initial):
-//   - WelcomeScreen is opaque and centred
-//   - Input is centred vertically via .layout (flexbox center)
-//   - ChatWindow is not mounted
-//
-// When chatActive is true (after first send):
-//   - .layout--active switches flexbox to column from top
-//   - .input-wrapper--active shifts input to the bottom
-//   - ChatWindow mounts and fills available space
-//   - WelcomeScreen fades to opacity 0 via .welcome-overlay--hidden
+// Phase -> UI mapping:
+//   welcome     -- neuron sphere centred, input pill visible
+//   classifying -- neuron sphere scrambling fast, input pill hidden
+//   revealing   -- neuron sphere lighting up, input pill hidden
+//   chatting    -- neuron sphere hidden, chat window + input visible
 
-import { useState, useCallback }  from 'react'
-import { cn }                      from '@/lib/utils'
-import { useChat }                 from '@/hooks/useChat'
-import CustomCursor                from '@/components/CustomCursor'
-import WelcomeScreen               from '@/components/chat/WelcomeScreen'
-import ChatWindow                  from '@/components/chat/ChatWindow'
-import InputBar                    from '@/components/chat/InputBar'
+import { useCallback }     from 'react'
+import { cn }              from '@/lib/utils'
+import { useChat }         from '@/hooks/useChat'
+import { FEATURES }        from '@/config'
+import CustomCursor        from '@/components/CustomCursor'
+import WelcomeScreen       from '@/components/chat/WelcomeScreen'
+import ChatWindow          from '@/components/chat/ChatWindow'
+import InputBar            from '@/components/chat/InputBar'
+import NeuronSphere        from '@/components/NeuronSphere'
 
 export default function App() {
-  const [chatActive, setChatActive]    = useState(false)
-  const { state, sendMessage, setModel } = useChat()
+  const { state, sendMessage } = useChat()
+
+  const { phase, neuronState, activeDomains, messages, isThinking } = state
+
+  const chatActive    = phase === 'chatting'
+  const hasHistory    = messages.length > 0
+  const isPillFading  = phase === 'classifying' || phase === 'revealing'
+  const showPill      = phase === 'welcome' || chatActive || isPillFading
+  const sphereHidden  = chatActive
+  const chatFaded     = isPillFading && hasHistory
+  const layoutActive  = chatActive || (isPillFading && hasHistory)
 
   const handleSend = useCallback((text: string) => {
-    if (!chatActive) setChatActive(true)
     sendMessage(text)
-  }, [chatActive, sendMessage])
+  }, [sendMessage])
 
   return (
     <>
       <CustomCursor />
-      <WelcomeScreen visible={!chatActive} />
 
-      <div className={cn('layout', chatActive && 'layout--active')}>
+      {FEATURES.WELCOME_SCREEN && (
+        <WelcomeScreen visible={phase === 'welcome'} />
+      )}
 
-        {/* Top-left app name */}
+      {/* Neuron sphere -- fixed overlay, always mounted for smooth transitions */}
+      <NeuronSphere
+        hidden={sphereHidden}
+        expanding={isPillFading}
+        animState={neuronState}
+        activeDomains={activeDomains}
+      />
+
+      <div className={cn('layout', layoutActive && 'layout--active')}>
+
         <header className="app-header">
-          Chat
+          <img src="/logo_charcoal.png" alt="Logo" className="app-header__logo" />
         </header>
 
-        {/* Message history -- only mounted once the first message is sent */}
-        {chatActive && (
-          <ChatWindow messages={state.messages} />
+        {(chatActive || chatFaded) && (
+          <ChatWindow messages={messages} faded={chatFaded} />
         )}
 
-        {/* Input -- centred in idle, pinned at bottom in active */}
-        <div className={cn('input-wrapper', chatActive && 'input-wrapper--active')}>
-          <InputBar
-            isThinking={state.isThinking}
-            selectedModel={state.selectedModel}
-            availableModels={state.availableModels}
-            onSend={handleSend}
-            onModelChange={setModel}
-          />
-        </div>
+        {showPill && (
+          <div className={cn(
+            'input-wrapper',
+            chatActive && 'input-wrapper--active',
+            isPillFading && 'input-wrapper--fading'
+          )}>
+            <InputBar
+              isThinking={isThinking}
+              onSend={handleSend}
+            />
+          </div>
+        )}
 
       </div>
     </>
